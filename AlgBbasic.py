@@ -274,14 +274,6 @@ added_note = ""
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
-dist_matrix = [
-    [0, 4, 3, 5, 7],
-    [4, 0, 2, 1, 6],
-    [3, 2, 0, 9, 1],
-    [5, 1, 9, 0, 2],
-    [7, 6, 1, 2, 0]]
-num_cities = len(dist_matrix)
-
 class Node:
     def __init__(self, id=0, state=[], parent_id=None, action=None, path_cost=0, depth=0):
         self.id = id
@@ -339,25 +331,15 @@ def a_star_search():
                     path_cost=current_node.path_cost + step_cost(current_node.state, current_node.state + [child_city]),
                     depth=current_node.depth + 1
                 )
-                
-                # print(child_node.state)
 
                 fringe.append(child_node)
-            # end for
 
             fringe = sorted(fringe, key=lambda node: node.total_cost)
-            
-            # if id < 50:
-            #     print([node.state for node in fringe])
-            #     print([node.heuristic_cost for node in fringe])
-            #     print([node.path_cost for node in fringe])
-            #     print([node.total_cost for node in fringe])
 
             if fringe[0].is_goal_node:
                 return fringe[0].state, fringe[0].path_cost
 
             check_exceed_time_limit(start_time)
-        # end while
 
 tour, tour_length = a_star_search()
 
