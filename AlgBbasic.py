@@ -275,13 +275,13 @@ added_note = ""
 ############
 
 
-# dist_matrix = [
-#     [0, 4, 3, 5, 7],
-#     [4, 0, 2, 1, 6],
-#     [3, 2, 0, 9, 1],
-#     [5, 1, 9, 0, 2],
-#     [7, 6, 1, 2, 0]]
-# num_cities = len(dist_matrix)
+dist_matrix = [
+    [0, 4, 3, 5, 7],
+    [4, 0, 2, 1, 6],
+    [3, 2, 0, 9, 1],
+    [5, 1, 9, 0, 2],
+    [7, 6, 1, 2, 0]]
+num_cities = len(dist_matrix)
 
 def distance(city1, city2):
     return dist_matrix[city1][city2]
@@ -325,9 +325,6 @@ class Node:
     def evaluation_function(self):
         return self.heuristic_cost + self.path_cost
 
-    def has_min_evaluated_cost(self, fringe):
-        return self.evaluated_cost == fringe[0].evaluated_cost
-
 def check_exceed_time_limit(start_time, time_limit=60):
     if time.time() - start_time > time_limit:
         print("*** error: Program exceeded time limit of ", time_limit, "seconds." )
@@ -340,10 +337,9 @@ def a_star_search():
     fringe = [root_node]
     
     id = 0
-    goal_node = None
 
     if root_node.is_goal_node:
-        return root_node.state
+        return root_node.state, root_node.path_cost
     else:
         while fringe != []:
             current_node = fringe.pop(0)
@@ -361,11 +357,8 @@ def a_star_search():
                 )
                 
                 # print(child_node.state)
-                
-                fringe.append(child_node)
 
-                if child_node.is_goal_node:
-                    goal_node = child_node
+                fringe.append(child_node)
             # end for
 
             fringe = sorted(fringe, key=lambda node: node.evaluated_cost)
@@ -376,22 +369,13 @@ def a_star_search():
             #     print([node.path_cost for node in fringe])
             #     print([node.evaluated_cost for node in fringe])
 
-            if goal_node != None and goal_node.has_min_evaluated_cost(fringe):
-                return goal_node.state
+            if fringe[0].is_goal_node:
+                return fringe[0].state, fringe[0].path_cost
 
             check_exceed_time_limit(start_time)
         # end while
 
-def find_tour_length(tour):
-    tour_length = 0
-    for i in range(0, num_cities - 1):
-        tour_length = tour_length + dist_matrix[tour[i]][tour[i + 1]]
-    tour_length = tour_length + dist_matrix[tour[num_cities - 1]][tour[0]]
-    return tour_length
-
-tour = a_star_search()
-
-tour_length = find_tour_length(tour)
+tour, tour_length = a_star_search()
 
 ############
 ############ YOUR CODE SHOULD NOW BE COMPLETE AND WHEN EXECUTION OF THIS PROGRAM 'skeleton.py'
