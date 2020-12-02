@@ -283,6 +283,19 @@ added_note = ""
 #     [7, 6, 1, 2, 0]]
 # num_cities = len(dist_matrix)
 
+def distance(city1, city2):
+    return dist_matrix[city1][city2]
+
+def step_cost(current_state, child_state):
+    num_visited_cities = len(current_state)
+
+    if num_visited_cities == 0:
+        return 0
+    elif num_visited_cities < num_cities - 1:
+        return distance(current_state[-1], child_state[-1])
+    else:
+        return distance(current_state[-1], child_state[-1]) + distance(child_state[-1], current_state[0])
+
 class Node:
     def __init__(self, id=0, state=[], parent_id=None, action=None, path_cost=0, depth=0):
         self.id = id
@@ -292,51 +305,50 @@ class Node:
         self.path_cost = path_cost
         self.depth = depth
 
-    def is_goal_node(self):
+        self.is_goal_node = self.check_is_goal_node()
+        self.child_cities = self.find_child_cities()
+        self.heuristic_cost = self.heuristic_function()
+        self.evaluated_cost = self.evaluation_function()
+
+    def check_is_goal_node(self):
         return set(range(num_cities)) == set(self.state)
 
-    def get_child_cities(self):
+    def find_child_cities(self):
         return list(set(range(num_cities)) - set(self.state))
 
-    def get_heuristic_cost(self):
-        if self.is_goal_node():
+    def heuristic_function(self):
+        if self.is_goal_node:
             return 0
         else:
-            return min([step_cost(self.state, self.state + [child_city]) for child_city in self.get_child_cities()])
+            return min([step_cost(self.state, self.state + [child_city]) for child_city in self.child_cities])
 
-def distance(city1, city2):
-    return dist_matrix[city1][city2]
+    def evaluation_function(self):
+        return self.heuristic_cost + self.path_cost
 
-def step_cost(current_state, child_state):
-    num_visited_cities = len(current_state)
-    if num_visited_cities == 0:
-        return 0
-    elif num_visited_cities < num_cities - 1:
-        return distance(current_state[-1], child_state[-1])
-    else:
-        return distance(current_state[-1], child_state[-1]) + distance(child_state[-1], current_state[0])
+    def has_min_evaluated_cost(self, fringe):
+        return self.evaluated_cost == fringe[0].evaluated_cost
 
-def exceed_time_limit(start_time, time_limit):
-    return time.time() - start_time > time_limit
+def check_exceed_time_limit(start_time, time_limit=60):
+    if time.time() - start_time > time_limit:
+        print("*** error: Program exceeded time limit of ", time_limit, "seconds." )
+        sys.exit()
 
 def a_star_search():
     start_time = time.time()
-    time_limit = 60
 
-    id = 0
     root_node = Node()
     fringe = [root_node]
-
-    found_goal_node_on_fringe = False
+    
+    id = 0
     goal_node = None
 
-    if root_node.is_goal_node():
+    if root_node.is_goal_node:
         return root_node.state
     else:
         while fringe != []:
-            current_node = fringe.pop()
+            current_node = fringe.pop(0)
             
-            for child_city in current_node.get_child_cities():
+            for child_city in current_node.child_cities:
                 id += 1
                 
                 child_node = Node(
@@ -350,24 +362,25 @@ def a_star_search():
                 
                 # print(child_node.state)
                 
-                if child_node.is_goal_node():
-                    found_goal_node_on_fringe = True
-                    goal_node = child_node
-
                 fringe.append(child_node)
-        
-            fringe = sorted(fringe, key=lambda node: node.get_heuristic_cost(), reverse=True)
+
+                if child_node.is_goal_node:
+                    goal_node = child_node
+            # end for
+
+            fringe = sorted(fringe, key=lambda node: node.evaluated_cost)
             
             # if id < 50:
             #     print([node.state for node in fringe])
-            #     print([node.get_heuristic_cost() for node in fringe])
-            
-            if found_goal_node_on_fringe and (goal_node.get_heuristic_cost() == fringe[-1].get_heuristic_cost()):
+            #     print([node.heuristic_cost for node in fringe])
+            #     print([node.path_cost for node in fringe])
+            #     print([node.evaluated_cost for node in fringe])
+
+            if goal_node != None and goal_node.has_min_evaluated_cost(fringe):
                 return goal_node.state
 
-            if exceed_time_limit(start_time, time_limit):
-                print("*** error: Program exceeded time limit of ", time_limit, "seconds." )
-                sys.exit()
+            check_exceed_time_limit(start_time)
+        # end while
 
 def find_tour_length(tour):
     tour_length = 0
@@ -379,8 +392,6 @@ def find_tour_length(tour):
 tour = a_star_search()
 
 tour_length = find_tour_length(tour)
-
-import AlgBbasic_test
 
 ############
 ############ YOUR CODE SHOULD NOW BE COMPLETE AND WHEN EXECUTION OF THIS PROGRAM 'skeleton.py'
