@@ -274,7 +274,6 @@ added_note = ""
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
-
 dist_matrix = [
     [0, 4, 3, 5, 7],
     [4, 0, 2, 1, 6],
@@ -282,6 +281,20 @@ dist_matrix = [
     [5, 1, 9, 0, 2],
     [7, 6, 1, 2, 0]]
 num_cities = len(dist_matrix)
+
+class Node:
+    def __init__(self, id=0, state=[], parent_id=None, action=None, path_cost=0, depth=0):
+        self.id = id
+        self.state = state
+        self.parent_id = parent_id
+        self.action = action
+        self.path_cost = path_cost
+        self.depth = depth
+
+        self.is_goal_node = set(range(num_cities)) == set(self.state)
+        self.child_cities = list(set(range(num_cities)) - set(self.state))
+        self.heuristic_cost = 0 if self.is_goal_node else min([step_cost(self.state, self.state + [child_city]) for child_city in self.child_cities])
+        self.total_cost = self.heuristic_cost + self.path_cost
 
 def distance(city1, city2):
     return dist_matrix[city1][city2]
@@ -295,35 +308,6 @@ def step_cost(current_state, child_state):
         return distance(current_state[-1], child_state[-1])
     else:
         return distance(current_state[-1], child_state[-1]) + distance(child_state[-1], current_state[0])
-
-class Node:
-    def __init__(self, id=0, state=[], parent_id=None, action=None, path_cost=0, depth=0):
-        self.id = id
-        self.state = state
-        self.parent_id = parent_id
-        self.action = action
-        self.path_cost = path_cost
-        self.depth = depth
-
-        self.is_goal_node = self.check_is_goal_node()
-        self.child_cities = self.find_child_cities()
-        self.heuristic_cost = self.heuristic_function()
-        self.evaluated_cost = self.evaluation_function()
-
-    def check_is_goal_node(self):
-        return set(range(num_cities)) == set(self.state)
-
-    def find_child_cities(self):
-        return list(set(range(num_cities)) - set(self.state))
-
-    def heuristic_function(self):
-        if self.is_goal_node:
-            return 0
-        else:
-            return min([step_cost(self.state, self.state + [child_city]) for child_city in self.child_cities])
-
-    def evaluation_function(self):
-        return self.heuristic_cost + self.path_cost
 
 def check_exceed_time_limit(start_time, time_limit=60):
     if time.time() - start_time > time_limit:
@@ -361,13 +345,13 @@ def a_star_search():
                 fringe.append(child_node)
             # end for
 
-            fringe = sorted(fringe, key=lambda node: node.evaluated_cost)
+            fringe = sorted(fringe, key=lambda node: node.total_cost)
             
             # if id < 50:
             #     print([node.state for node in fringe])
             #     print([node.heuristic_cost for node in fringe])
             #     print([node.path_cost for node in fringe])
-            #     print([node.evaluated_cost for node in fringe])
+            #     print([node.total_cost for node in fringe])
 
             if fringe[0].is_goal_node:
                 return fringe[0].state, fringe[0].path_cost
