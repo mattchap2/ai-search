@@ -274,6 +274,8 @@ added_note = ""
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
+from queue import PriorityQueue
+
 class Node:
     def __init__(self, id=0, state=[], parent_id=None, action=None, path_cost=0, depth=0):
         self.id = id
@@ -287,6 +289,9 @@ class Node:
         self.child_cities = list(set(range(num_cities)) - set(self.state))
         self.heuristic_cost = 0 if self.is_goal_node else min([step_cost(self.state, self.state + [child_city]) for child_city in self.child_cities])
         self.total_cost = self.heuristic_cost + self.path_cost
+    
+    def __lt__(self, other):
+        return self.total_cost < other.total_cost
 
 def distance(city1, city2):
     return dist_matrix[city1][city2]
@@ -310,15 +315,17 @@ def a_star_search():
     start_time = time.time()
 
     root_node = Node()
-    fringe = [root_node]
+    fringe = PriorityQueue()
+    fringe.put((root_node.total_cost, root_node))
     
     id = 0
 
     if root_node.is_goal_node:
         return root_node.state, root_node.path_cost
     else:
-        while fringe != []:
-            current_node = fringe.pop(0)
+        while not fringe.empty():
+            current_tuple = fringe.get()
+            current_node = current_tuple[1]
             
             for child_city in current_node.child_cities:
                 id += 1
@@ -332,12 +339,10 @@ def a_star_search():
                     depth=current_node.depth + 1
                 )
 
-                fringe.append(child_node)
+                fringe.put((child_node.total_cost, child_node))
 
-            fringe = sorted(fringe, key=lambda node: node.total_cost)
-
-            if fringe[0].is_goal_node:
-                return fringe[0].state, fringe[0].path_cost
+            if fringe.queue[0][1].is_goal_node:
+                return fringe.queue[0][1].state, fringe.queue[0][1].path_cost
 
             check_exceed_time_limit(start_time)
 
