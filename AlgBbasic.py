@@ -288,10 +288,10 @@ class Node:
         self.is_goal_node = set(range(num_cities)) == set(self.state)
         self.child_cities = list(set(range(num_cities)) - set(self.state))
         self.heuristic_cost = 0 if self.is_goal_node else min([step_cost(self.state, self.state + [child_city]) for child_city in self.child_cities])
-        self.total_cost = self.heuristic_cost + self.path_cost
+        self.f_value = self.heuristic_cost + self.path_cost
     
     def __lt__(self, other):
-        return self.total_cost < other.total_cost
+        return self.f_value < other.f_value
 
 def distance(city1, city2):
     return dist_matrix[city1][city2]
@@ -312,41 +312,37 @@ def check_exceed_time_limit(start_time, time_limit=60):
         sys.exit()
 
 def a_star_search():
-    start_time = time.time()
-
-    root_node = Node()
-    fringe = PriorityQueue()
-    fringe.put(root_node)
-    
     id = 0
 
-    if root_node.is_goal_node:
-        return root_node.state, root_node.path_cost
-    else:
-        while not fringe.empty():
-            current_node = fringe.get()
+    root_node = Node()
+
+    fringe = PriorityQueue()
+    fringe.put(root_node)
+
+    while not fringe.empty():
+        current_node = fringe.get()
+
+        if current_node.is_goal_node:
+            return current_node.state, current_node.path_cost
+        
+        for child_city in current_node.child_cities:
+            id += 1
             
-            for child_city in current_node.child_cities:
-                id += 1
-                
-                child_node = Node(
-                    id=id,
-                    state=current_node.state + [child_city],
-                    parent_id=current_node.id,
-                    action='VISIT {}'.format(child_city),
-                    path_cost=current_node.path_cost + step_cost(current_node.state, current_node.state + [child_city]),
-                    depth=current_node.depth + 1
-                )
+            child_node = Node(
+                id=id,
+                state=current_node.state + [child_city],
+                parent_id=current_node.id,
+                action='VISIT {}'.format(child_city),
+                path_cost=current_node.path_cost + step_cost(current_node.state, current_node.state + [child_city]),
+                depth=current_node.depth + 1
+            )
+            fringe.put(child_node)
 
-                fringe.put(child_node)
+        check_exceed_time_limit(start_time)
 
-            if fringe.queue[0].is_goal_node:
-                print("Tour found in {:.1f} seconds.".format(time.time() - start_time))
-                return fringe.queue[0].state, fringe.queue[0].path_cost
-
-            check_exceed_time_limit(start_time)
-
+start_time = time.time()
 tour, tour_length = a_star_search()
+print("Tour found in {:.1f} seconds.".format(time.time() - start_time))
 
 ############
 ############ YOUR CODE SHOULD NOW BE COMPLETE AND WHEN EXECUTION OF THIS PROGRAM 'skeleton.py'
