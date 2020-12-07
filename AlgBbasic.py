@@ -316,7 +316,7 @@ def a_star_search():
 
     root_node = Node()
     fringe = PriorityQueue()
-    fringe.put((root_node.total_cost, root_node))
+    fringe.put(root_node)
     
     id = 0
 
@@ -324,8 +324,7 @@ def a_star_search():
         return root_node.state, root_node.path_cost
     else:
         while not fringe.empty():
-            current_tuple = fringe.get()
-            current_node = current_tuple[1]
+            current_node = fringe.get()
             
             for child_city in current_node.child_cities:
                 id += 1
@@ -339,10 +338,11 @@ def a_star_search():
                     depth=current_node.depth + 1
                 )
 
-                fringe.put((child_node.total_cost, child_node))
+                fringe.put(child_node)
 
-            if fringe.queue[0][1].is_goal_node:
-                return fringe.queue[0][1].state, fringe.queue[0][1].path_cost
+            if fringe.queue[0].is_goal_node:
+                print("Tour found in {} seconds.".format(time.time() - start_time))
+                return fringe.queue[0].state, fringe.queue[0].path_cost
 
             check_exceed_time_limit(start_time)
 
