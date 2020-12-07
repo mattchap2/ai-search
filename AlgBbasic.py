@@ -268,7 +268,7 @@ print("   your algorithm code is legal and is " + algorithm_code + " -" + code_d
 ############ YOUR TOUR THAT YOU MIGHT BE INTERESTED IN LATER.
 ############
 
-added_note = ""
+added_note = "found by AlgBbasic.py"
 
 ############
 ############ NOW YOUR CODE SHOULD BEGIN.
