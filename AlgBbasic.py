@@ -341,7 +341,7 @@ def a_star_search():
                 fringe.put(child_node)
 
             if fringe.queue[0].is_goal_node:
-                print("Tour found in {} seconds.".format(time.time() - start_time))
+                print("Tour found in {:.1f} seconds.".format(time.time() - start_time))
                 return fringe.queue[0].state, fringe.queue[0].path_cost
 
             check_exceed_time_limit(start_time)
