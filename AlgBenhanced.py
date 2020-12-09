@@ -275,6 +275,7 @@ added_note = "found by AlgBenhanced.py"
 ############
 
 from queue import PriorityQueue
+from itertools import permutations
 
 class Node:
     def __init__(self, id=0, state=[], parent_id=None, action=None, path_cost=0, depth=0):
@@ -287,7 +288,7 @@ class Node:
 
         self.is_goal_node = set(range(num_cities)) == set(self.state)
         self.child_cities = list(set(range(num_cities)) - set(self.state))
-        self.heuristic_cost = self.heuristic_function_1()
+        self.heuristic_cost = self.heuristic_function_2()
         self.f_value = self.heuristic_cost + self.path_cost
     
     def heuristic_function_1(self):
@@ -297,9 +298,36 @@ class Node:
         else:
             return min([step_cost(self.state, self.state + [child_city]) for child_city in self.child_cities])
 
-    def heuristic_function_2(self, k):
+    def heuristic_function_2(self, k=3):
         """ shortest path of length k through unvisited cities (from the current end-city) """
-        return 0
+        if self.is_goal_node:
+            return 0  
+
+        num_unvisited_cities = num_cities - len(self.state)
+
+        if k < 1:
+            print("*** error: Invalid k={}".format(k))
+            sys.exit()
+        elif k == 1:
+            return self.heuristic_function_1()
+        elif k <= num_unvisited_cities:
+            pass
+        else:   # if k > num_unvisited_cities
+            k = num_unvisited_cities
+
+        paths_from_current_city = list(permutations(self.child_cities, k))  # list of tuples
+        path_from_current_city_costs = []
+        
+        for path_from_current_city in paths_from_current_city:
+            path_from_current_city_cost = 0
+
+            for i in range(k):
+                path_from_current_city_cost += step_cost(
+                    self.state + list(path_from_current_city[:i]), 
+                    self.state + list(path_from_current_city[:i+1])
+                    )
+            path_from_current_city_costs.append(path_from_current_city_cost)
+        return min(path_from_current_city_costs) 
 
     def heuristic_function_3(self):
         """  distance of the “greedy completion” (from the current end-city) """
