@@ -275,6 +275,7 @@ added_note = "found by AlgBbasic.py"
 ############
 
 from queue import PriorityQueue
+import math
 
 class Node:
     def __init__(self, id=0, state=[], parent_id=None, action=None, path_cost=0, depth=0):
@@ -306,10 +307,32 @@ def step_cost(current_state, child_state):
     else:
         return distance(current_state[-1], child_state[-1]) + distance(child_state[-1], current_state[0])
 
-def check_exceed_time_limit(start_time, time_limit=60):
-    if time.time() - start_time > time_limit:
-        print("*** error: Program exceeded time limit of ", time_limit, "seconds." )
-        sys.exit()
+def greedy_completition(state):
+    print(" Tour so far is: ", state)
+    print("Continuing with greedy completion...")
+
+    while len(state) != num_cities:
+        dists = dist_matrix[state[-1]]
+        min_dist = math.inf
+        min_i = 0
+
+        for i in range(num_cities):
+            if i not in state:
+                if dists[i] < min_dist:
+                    min_dist = dists[i]
+                    min_i = i
+        
+        state.append(min_i)
+    
+    check_tour_length = 0
+    for i in range(0, num_cities - 1):
+        check_tour_length = check_tour_length + dist_matrix[state[i]][state[i + 1]]
+    check_tour_length = check_tour_length + dist_matrix[state[num_cities - 1]][state[0]]
+
+    return state, check_tour_length
+
+def exceed_time_limit(start_time, time_limit=60):
+    return time.time() - start_time > time_limit
 
 def a_star_search():
     id = 0
@@ -338,7 +361,10 @@ def a_star_search():
             )
             fringe.put(child_node)
 
-        check_exceed_time_limit(start_time)
+        if exceed_time_limit(start_time):
+            print("Passed {}s time limit.".format(time.time() - start_time))
+            current_node = fringe.get()
+            return greedy_completition(current_node.state)
 
 start_time = time.time()
 tour, tour_length = a_star_search()
