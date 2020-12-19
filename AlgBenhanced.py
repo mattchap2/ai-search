@@ -276,60 +276,45 @@ added_note = "found by AlgBenhanced.py"
 
 from queue import PriorityQueue
 from itertools import permutations
-import math
+from math import inf
 
 class Node:
     def __init__(self, id=0, state=[], parent_id=None, action=None, path_cost=0, depth=0):
         self.id = id
         self.state = state
-        self.parent_id = parent_id
-        self.action = action
+        # self.parent_id = parent_id
+        # self.action = action
         self.path_cost = path_cost
-        self.depth = depth
+        # self.depth = depth
 
         self.is_goal_node = set(range(num_cities)) == set(self.state)
         self.child_cities = list(set(range(num_cities)) - set(self.state))
-        self.heuristic_cost = self.heuristic_function()
-        self.f_value = self.heuristic_cost + self.path_cost
+        self.f_value = self.heuristic_function(k=2) + self.path_cost
     
     def heuristic_function(self, k=1):
-        """ minimum total step-cost through k unvisited cities (from the current end-city) """
+        """ path of length k through unvisited cities (from the current end-city) with minimum combined step-costs """
         if self.is_goal_node:
             return 0  
+        else:
+            k = min(k, num_cities - len(self.state))
 
-        num_unvisited_cities = num_cities - len(self.state)
+            if k == 1:
+                return min([step_cost(self.state, self.state + [child_city]) for child_city in self.child_cities])
+            else:
+                paths = list(permutations(self.child_cities, k))  # list of tuples
+                path_costs = []
+                
+                for path in paths:
+                    path_cost = 0
 
-        if k < 1:
-            print("*** error: Invalid k={}".format(k))
-            sys.exit()
-        elif k == 1:
-            return min([step_cost(self.state, self.state + [child_city]) for child_city in self.child_cities])
-        elif k <= num_unvisited_cities:
-            pass
-        else:   # if k > num_unvisited_cities
-            k = num_unvisited_cities
-
-        paths_from_current_city = list(permutations(self.child_cities, k))  # list of tuples
-        path_from_current_city_costs = []
-        
-        for path_from_current_city in paths_from_current_city:
-            path_from_current_city_cost = 0
-
-            for i in range(k):
-                path_from_current_city_cost += step_cost(
-                    self.state + list(path_from_current_city[:i]), 
-                    self.state + list(path_from_current_city[:i+1])
-                    )
-            path_from_current_city_costs.append(path_from_current_city_cost)
-        return min(path_from_current_city_costs) 
-
-    def heuristic_function_3(self):
-        """  distance of the “greedy completion” (from the current end-city) """
-        return 0
-
-    def heuristic_function_4(self):
-        """ distance of any “greedy partial” completion, only through k unvisited cities (from the current end city and back to the start) """
-        return 0
+                    for i in range(k):
+                        path_cost += step_cost(
+                            self.state + list(path[:i]), 
+                            self.state + list(path[:i+1])
+                            )
+                    path_costs.append(path_cost)
+                
+                return min(path_costs)
 
     def __lt__(self, other):
         return self.f_value < other.f_value
@@ -353,7 +338,7 @@ def greedy_completition(state):
 
     while len(state) != num_cities:
         dists = dist_matrix[state[-1]]
-        min_dist = math.inf
+        min_dist = inf
         min_i = 0
 
         for i in range(num_cities):
@@ -394,10 +379,10 @@ def a_star_search():
             child_node = Node(
                 id=id,
                 state=current_node.state + [child_city],
-                parent_id=current_node.id,
-                action='VISIT {}'.format(child_city),
+                # parent_id=current_node.id,
+                # action='VISIT {}'.format(child_city),
                 path_cost=current_node.path_cost + step_cost(current_node.state, current_node.state + [child_city]),
-                depth=current_node.depth + 1
+                # depth=current_node.depth + 1
             )
             fringe.put(child_node)
 
