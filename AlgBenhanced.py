@@ -289,18 +289,11 @@ class Node:
 
         self.is_goal_node = set(range(num_cities)) == set(self.state)
         self.child_cities = list(set(range(num_cities)) - set(self.state))
-        self.heuristic_cost = self.heuristic_function_2()
+        self.heuristic_cost = self.heuristic_function()
         self.f_value = self.heuristic_cost + self.path_cost
     
-    def heuristic_function_1(self):
-        """ distance to the nearest unvisited city (from the current end-city) """
-        if self.is_goal_node:
-            return 0  
-        else:
-            return min([step_cost(self.state, self.state + [child_city]) for child_city in self.child_cities])
-
-    def heuristic_function_2(self, k=3):
-        """ shortest path of length k through unvisited cities (from the current end-city) """
+    def heuristic_function(self, k=1):
+        """ minimum total step-cost through k unvisited cities (from the current end-city) """
         if self.is_goal_node:
             return 0  
 
@@ -310,7 +303,7 @@ class Node:
             print("*** error: Invalid k={}".format(k))
             sys.exit()
         elif k == 1:
-            return self.heuristic_function_1()
+            return min([step_cost(self.state, self.state + [child_city]) for child_city in self.child_cities])
         elif k <= num_unvisited_cities:
             pass
         else:   # if k > num_unvisited_cities
