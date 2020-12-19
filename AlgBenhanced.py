@@ -289,7 +289,7 @@ class Node:
 
         self.is_goal_node = set(range(num_cities)) == set(self.state)
         self.child_cities = list(set(range(num_cities)) - set(self.state))
-        self.f_value = self.heuristic_function(k=2) + self.path_cost
+        self.f_value = self.heuristic_function() + self.path_cost
     
     def heuristic_function(self, k=1):
         """ path of length k through unvisited cities (from the current end-city) with minimum combined step-costs """
@@ -320,7 +320,11 @@ def step_cost(current_state, child_state):
     else:
         return distance(current_state[-1], child_state[-1]) + distance(child_state[-1], current_state[0])
 
-def greedy_completition(state):
+def greedy_completition(current_node):
+    state = current_node.state
+    path_cost = current_node.path_cost
+    
+    print("Passed {:.1f}s time limit.".format(time.time() - start_time))
     print(" Tour so far is: ", state)
     print("Continuing with greedy completion...")
 
@@ -334,18 +338,11 @@ def greedy_completition(state):
                 if dists[i] < min_dist:
                     min_dist = dists[i]
                     min_i = i
-        
         state.append(min_i)
-    
-    check_tour_length = 0
-    for i in range(0, num_cities - 1):
-        check_tour_length = check_tour_length + dist_matrix[state[i]][state[i + 1]]
-    check_tour_length = check_tour_length + dist_matrix[state[num_cities - 1]][state[0]]
+        path_cost += min_dist
+    path_cost += dist_matrix[state[-1]][state[0]]
 
-    return state, check_tour_length
-
-def exceed_time_limit(start_time, time_limit=60):
-    return time.time() - start_time > time_limit
+    return state, path_cost
 
 def a_star_search():
     id = 0
@@ -360,6 +357,10 @@ def a_star_search():
 
         if current_node.is_goal_node:
             return current_node.state, current_node.path_cost
+
+        # check time 
+        if time.time() - start_time > time_limit:
+            return greedy_completition(current_node)
         
         for child_city in current_node.child_cities:
             id += 1
@@ -374,12 +375,7 @@ def a_star_search():
             )
             fringe.put(child_node)
 
-        if exceed_time_limit(start_time):
-            print("Passed {}s time limit.".format(time.time() - start_time))
-            current_node = fringe.get()
-            return greedy_completition(current_node.state)
-
-start_time = time.time()
+start_time, time_limit = time.time(), 60
 tour, tour_length = a_star_search()
 print("Tour found in {:.1f} seconds.".format(time.time() - start_time))
 
