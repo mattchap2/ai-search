@@ -302,19 +302,7 @@ class Node:
                 return min([step_cost(self.state, self.state + [child_city]) for child_city in self.child_cities])
             else:
                 paths = list(permutations(self.child_cities, k))  # list of tuples
-                path_costs = []
-                
-                for path in paths:
-                    path_cost = 0
-
-                    for i in range(k):
-                        path_cost += step_cost(
-                            self.state + list(path[:i]), 
-                            self.state + list(path[:i+1])
-                            )
-                    path_costs.append(path_cost)
-                
-                return min(path_costs)
+                return min([sum(step_cost(self.state + list(path[:i]), self.state + list(path[:i+1])) for i in range(k)) for path in paths])
 
     def __lt__(self, other):
         return self.f_value < other.f_value
