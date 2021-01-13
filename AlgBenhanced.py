@@ -293,16 +293,19 @@ class Node:
     
     def heuristic_function(self, k=1):
         """ path of length k through unvisited cities (from the current end-city) with minimum combined step-costs """
+        state = self.state
+        child_cities = self.child_cities
+        
         if self.is_goal_node:
             return 0  
         else:
-            k = min(k, num_cities - len(self.state))
+            k = min(k, num_cities - len(state))
 
             if k == 1:
-                return min([step_cost(self.state, self.state + [child_city]) for child_city in self.child_cities])
+                return min([step_cost(state, state + [child_city]) for child_city in child_cities])
             else:
-                paths = list(permutations(self.child_cities, k))  # list of tuples
-                return min([sum(step_cost(self.state + list(path[:i]), self.state + list(path[:i+1])) for i in range(k)) for path in paths])
+                paths = list(permutations(child_cities, k))  # list of tuples
+                return min([sum(step_cost(state + list(path[:i]), state + list(path[:i+1])) for i in range(k)) for path in paths])
 
     def __lt__(self, other):
         return self.f_value < other.f_value
