@@ -268,15 +268,15 @@ print("   your algorithm code is legal and is " + algorithm_code + " -" + code_d
 ############ YOUR TOUR THAT YOU MIGHT BE INTERESTED IN LATER.
 ############
 
-added_note = "found by AlgBenhanced.py"
+added_note = ""
 
 ############
 ############ NOW YOUR CODE SHOULD BEGIN.
 ############
 
 from queue import PriorityQueue
-from itertools import permutations
 from math import inf
+from itertools import permutations
 
 class Node:
     def __init__(self, id=0, state=[], parent_id=None, action=None, path_cost=0, depth=0):
