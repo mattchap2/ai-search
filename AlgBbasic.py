@@ -292,10 +292,12 @@ class Node:
     
     def heuristic_function(self):
         state = self.state
+        
         if self.is_goal_node:
             return 0  
         else:
             return min([step_cost(state, state + [child_city]) for child_city in self.child_cities])
+    
     def __lt__(self, other):
         return self.f_value < other.f_value
 
