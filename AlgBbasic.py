@@ -318,9 +318,11 @@ def greedy_completition(current_node):
     state = current_node.state
     path_cost = current_node.path_cost
     
-    print("Passed {:.1f}s time limit.".format(time.time() - start_time))
-    print(" Tour so far is: ", state)
-    print("Continuing with greedy completion...")
+    # add notes
+    global added_note 
+    added_note += "Ran A* Search for {}s (time limit) then continued greedily".format(time_limit)
+    added_note += "\n       Tour length before completion: {}".format(path_cost)
+    added_note += "\n       Tour before greedy completion: {}".format(state)
 
     while len(state) != num_cities:
         dists = dist_matrix[state[-1]]
@@ -369,9 +371,10 @@ def a_star_search():
             )
             fringe.put(child_node)
 
-start_time, time_limit = time.time(), 60
+start_time = time.time()
+time_limit = 50
 tour, tour_length = a_star_search()
-print("Tour found in {:.1f} seconds.".format(time.time() - start_time))
+added_note += "\n       Tour found in {:.1f} seconds".format(time.time() - start_time)
 
 ############
 ############ YOUR CODE SHOULD NOW BE COMPLETE AND WHEN EXECUTION OF THIS PROGRAM 'skeleton.py'
