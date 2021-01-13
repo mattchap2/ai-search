@@ -282,7 +282,7 @@ city_set = set(range(num_cities))
 
 class Node:
     # def __init__(self, id=0, state=[], parent_id=None, action=None, path_cost=0, depth=0):
-    def __init__(self, state=[], path_cost=0):
+    def __init__(self, state=[], path_cost=0, a=1):
         # self.id = id
         self.state = state
         # self.parent_id = parent_id
@@ -292,7 +292,7 @@ class Node:
 
         self.is_goal_node = city_set == set(state)
         self.child_cities = list(city_set - set(state))
-        self.f_value = self.heuristic_function() + path_cost
+        self.f_value = a * self.heuristic_function() + path_cost
     
     def heuristic_function(self, k=1):
         """ path of length k through unvisited cities (from the current end-city) with minimum combined step-costs """
@@ -385,7 +385,7 @@ def a_star_search():
 
 
 start_time = time.time()
-time_limit = 50
+time_limit = 300
 tour, tour_length = a_star_search()
 added_note += "\n       Tour found in {:.1f} seconds".format(time.time() - start_time)
 
