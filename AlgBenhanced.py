@@ -278,23 +278,23 @@ from queue import PriorityQueue
 from math import inf
 from itertools import permutations
 
-# parameters 
-a = 10
-k = 2
-time_limit = 50
-
 city_set = set(range(num_cities))
 
 class Node:
-    def __init__(self, state=[], path_cost=0, weight=a):
+    # def __init__(self, id=0, state=[], parent_id=None, action=None, path_cost=0, depth=0):
+    def __init__(self, state=[], path_cost=0, a=1):
+        # self.id = id
         self.state = state
+        # self.parent_id = parent_id
+        # self.action = action
         self.path_cost = path_cost
+        # self.depth = depth
 
         self.is_goal_node = city_set == set(state)
         self.child_cities = list(city_set - set(state))
-        self.f_value = weight * self.heuristic_cost() + path_cost
+        self.f_value = a * self.heuristic_function() + path_cost
     
-    def heuristic_cost(self, k=k):
+    def heuristic_function(self, k=1):
         """ path of length k through unvisited cities (from the current end-city) with minimum combined step-costs """
         state = self.state
         child_cities = self.child_cities
@@ -305,10 +305,10 @@ class Node:
             k = min(k, num_cities - len(state))
 
             if k == 1:
-                return min([step_cost(state, child_city) for child_city in child_cities])
+                return min([step_cost(state, state + [child_city]) for child_city in child_cities])
             else:
                 paths = list(permutations(child_cities, k))  # list of tuples
-                return min([sum(step_cost(state + list(path[:i]), path[i]) for i in range(k)) for path in paths])
+                return min([sum(step_cost(state + list(path[:i]), state + list(path[:i+1])) for i in range(k)) for path in paths])
 
     def __lt__(self, other):
         return self.f_value < other.f_value
@@ -316,15 +316,15 @@ class Node:
 def distance(city1, city2):
     return dist_matrix[city1][city2]
 
-def step_cost(current_state, child_city):
+def step_cost(current_state, child_state):
     num_visited_cities = len(current_state)
 
     if num_visited_cities == 0:
         return 0
     elif num_visited_cities < num_cities - 1:
-        return distance(current_state[-1], child_city)
+        return distance(current_state[-1], child_state[-1])
     else:   # if num_visited_cities == num_cities 
-        return distance(current_state[-1], child_city) + distance(child_city, current_state[0])
+        return distance(current_state[-1], child_state[-1]) + distance(child_state[-1], current_state[0])
 
 def greedy_completition(current_node):
     state = current_node.state
@@ -332,7 +332,8 @@ def greedy_completition(current_node):
     
     # add notes
     global added_note 
-    added_note += "\n       Tour length before greedy completion: {}".format(path_cost)
+    added_note += "Ran A* Search for {}s (time limit) then continued greedily".format(time_limit)
+    added_note += "\n       Tour length before completion: {}".format(path_cost)
     added_note += "\n       Tour before greedy completion: {}".format(state)
 
     while len(state) != num_cities:
@@ -352,6 +353,8 @@ def greedy_completition(current_node):
     return state, path_cost
 
 def a_star_search():
+    # id = 0
+
     root_node = Node()
 
     fringe = PriorityQueue()
@@ -359,26 +362,31 @@ def a_star_search():
 
     while not fringe.empty():
         current_node = fringe.get()
-        current_state = current_node.state
 
         if current_node.is_goal_node:
-            return current_state, current_node.path_cost
-        else:
-            for child_city in current_node.child_cities:
-                child_node = Node(
-                    state=current_state + [child_city],
-                    path_cost=current_node.path_cost + step_cost(current_state, child_city),
-                )
-                fringe.put(child_node)
+            return current_node.state, current_node.path_cost
 
         # check time 
         if time.time() - start_time > time_limit:
             return greedy_completition(current_node)
+        
+        for child_city in current_node.child_cities:
+            # id += 1
+            
+            child_node = Node(
+                # id=id,
+                state=current_node.state + [child_city],
+                # parent_id=current_node.id,
+                # action='VISIT {}'.format(child_city),
+                path_cost=current_node.path_cost + step_cost(current_node.state, current_node.state + [child_city]),
+                # depth=current_node.depth + 1
+            )
+            fringe.put(child_node)
 
 
 start_time = time.time()
+time_limit = 300
 tour, tour_length = a_star_search()
-added_note += "\n       Parameters: a={}, k={}, time_limit={}".format(a, k, time_limit)
 added_note += "\n       Tour found in {:.1f} seconds".format(time.time() - start_time)
 
 ############
