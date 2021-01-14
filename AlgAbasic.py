@@ -345,7 +345,7 @@ def greedy_completition(current_node):
 
     return state, path_cost
 
-def a_star_search():
+def greedy_best_first_search():
     # id = 0
 
     root_node = Node()
@@ -378,7 +378,7 @@ def a_star_search():
             fringe.put(child_node)
 
 start_time = time.time()
-tour, tour_length = a_star_search()
+tour, tour_length = greedy_best_first_search()
 added_note += "\n       Tour found in {:.1f} seconds".format(time.time() - start_time)
 
 ############
