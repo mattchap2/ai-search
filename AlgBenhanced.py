@@ -386,7 +386,6 @@ def a_star_search():
             )
             fringe.put(child_node)
 
-
 start_time = time.time()
 tour, tour_length = a_star_search()
 # added_note += "\n       Parameters: a={}, k={}, time_limit={}".format(a, k, time_limit)

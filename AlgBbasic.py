@@ -277,20 +277,26 @@ added_note = ""
 from queue import PriorityQueue
 from math import inf
 
+# parameters
+time_limit = 50
+
+city_set = set(range(num_cities))
+
 class Node:
-    def __init__(self, id=0, state=[], parent_id=None, action=None, path_cost=0, depth=0):
-        self.id = id
+    # def __init__(self, id=0, state=[], parent_id=None, action=None, path_cost=0, depth=0):
+    def __init__(self, state=[], path_cost=0):
+        # self.id = id
         self.state = state
         # self.parent_id = parent_id
         # self.action = action
         self.path_cost = path_cost
         # self.depth = depth
 
-        self.is_goal_node = set(range(num_cities)) == set(self.state)
-        self.child_cities = list(set(range(num_cities)) - set(self.state))
-        self.f_value = self.heuristic_function() + self.path_cost
+        self.is_goal_node = city_set == set(state)
+        self.child_cities = list(city_set - set(state))
+        self.f_value = self.heuristic_cost() + path_cost
     
-    def heuristic_function(self):
+    def heuristic_cost(self):
         state = self.state
         
         if self.is_goal_node:
@@ -311,7 +317,7 @@ def step_cost(current_state, child_state):
         return 0
     elif num_visited_cities < num_cities - 1:
         return distance(current_state[-1], child_state[-1])
-    else:
+    else:   # if num_visited_cities == num_cities 
         return distance(current_state[-1], child_state[-1]) + distance(child_state[-1], current_state[0])
 
 def greedy_completition(current_node):
@@ -319,10 +325,9 @@ def greedy_completition(current_node):
     path_cost = current_node.path_cost
     
     # add notes
-    global added_note 
-    added_note += "Ran A* Search for {}s (time limit) then continued greedily".format(time_limit)
-    added_note += "\n       Tour length before completion: {}".format(path_cost)
-    added_note += "\n       Tour before greedy completion: {}".format(state)
+    # global added_note 
+    # added_note += "\n       Tour length before completion: {}".format(path_cost)
+    # added_note += "\n       Tour before greedy completion: {}".format(state)
 
     while len(state) != num_cities:
         dists = dist_matrix[state[-1]]
@@ -341,7 +346,7 @@ def greedy_completition(current_node):
     return state, path_cost
 
 def a_star_search():
-    id = 0
+    # id = 0
 
     root_node = Node()
 
@@ -359,10 +364,10 @@ def a_star_search():
             return greedy_completition(current_node)
         
         for child_city in current_node.child_cities:
-            id += 1
+            # id += 1
             
             child_node = Node(
-                id=id,
+                # id=id,
                 state=current_node.state + [child_city],
                 # parent_id=current_node.id,
                 # action='VISIT {}'.format(child_city),
@@ -372,9 +377,8 @@ def a_star_search():
             fringe.put(child_node)
 
 start_time = time.time()
-time_limit = 50
 tour, tour_length = a_star_search()
-added_note += "\n       Tour found in {:.1f} seconds".format(time.time() - start_time)
+# added_note += "\n       Tour found in {:.1f} seconds".format(time.time() - start_time)
 
 ############
 ############ YOUR CODE SHOULD NOW BE COMPLETE AND WHEN EXECUTION OF THIS PROGRAM 'skeleton.py'
