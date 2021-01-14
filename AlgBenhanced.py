@@ -279,7 +279,7 @@ from math import inf
 from itertools import permutations
 
 # parameters
-a = 10
+a = 2
 k = 2
 time_limit = 50
 
@@ -335,10 +335,9 @@ def greedy_completition(current_node):
     path_cost = current_node.path_cost
     
     # add notes
-    global added_note 
-    added_note += "Ran A* Search for {}s (time limit) then continued greedily".format(time_limit)
-    added_note += "\n       Tour length before completion: {}".format(path_cost)
-    added_note += "\n       Tour before greedy completion: {}".format(state)
+    # global added_note 
+    # added_note += "\n       Tour length before completion: {}".format(path_cost)
+    # added_note += "\n       Tour before greedy completion: {}".format(state)
 
     while len(state) != num_cities:
         dists = dist_matrix[state[-1]]
@@ -390,7 +389,8 @@ def a_star_search():
 
 start_time = time.time()
 tour, tour_length = a_star_search()
-added_note += "\n       Tour found in {:.1f} seconds".format(time.time() - start_time)
+# added_note += "\n       Parameters: a={}, k={}, time_limit={}".format(a, k, time_limit)
+# added_note += "\n       Tour found in {:.1f} seconds".format(time.time() - start_time)
 
 ############
 ############ YOUR CODE SHOULD NOW BE COMPLETE AND WHEN EXECUTION OF THIS PROGRAM 'skeleton.py'
