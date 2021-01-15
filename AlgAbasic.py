@@ -373,7 +373,7 @@ def greedy_best_first_search():
             )
 
             if child_node.is_goal_node:
-                return current_node.state, current_node.path_cost
+                return child_node.state, child_node.path_cost
 
             fringe.put(child_node)
 
