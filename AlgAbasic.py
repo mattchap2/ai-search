@@ -278,7 +278,7 @@ from queue import PriorityQueue
 from math import inf
 
 # parameters
-time_limit = 300
+time_limit = 50
 
 city_set = set(range(num_cities))
 
