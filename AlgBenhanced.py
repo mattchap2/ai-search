@@ -331,7 +331,7 @@ def step_cost(current_state, child_state):
         return distance(current_state[-1], child_state[-1]) + distance(child_state[-1], current_state[0])
 
 def greedy_completition(current_node):
-    state = current_node.state
+    state = current_node.state[:]
     path_cost = current_node.path_cost
     
     # add notes

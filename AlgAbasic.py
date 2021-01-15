@@ -297,7 +297,7 @@ class Node:
         self.f_value = self.heuristic_cost()
     
     def heuristic_cost(self):
-        state = self.state
+        state = self.state[:]
         
         if self.is_goal_node:
             return 0  
@@ -321,13 +321,13 @@ def step_cost(current_state, child_state):
         return distance(current_state[-1], child_state[-1]) + distance(child_state[-1], current_state[0])
 
 def greedy_completition(current_node):
-    state = current_node.state
+    state = current_node.state[:]
     path_cost = current_node.path_cost
     
     # add notes
-    global added_note 
-    added_note += "\n       Tour length before completion: {}".format(path_cost)
-    added_note += "\n       Tour before greedy completion: {}".format(state)
+    # global added_note 
+    # added_note += "\n       Tour length before completion: {}".format(path_cost)
+    # added_note += "\n       Tour before greedy completion: {}".format(state)
 
     while len(state) != num_cities:
         dists = dist_matrix[state[-1]]
@@ -362,7 +362,7 @@ def greedy_best_first_search():
         
         for child_city in current_node.child_cities:
             # id += 1
-            
+
             child_node = Node(
                 # id=id,
                 state=current_node.state + [child_city],
@@ -379,7 +379,7 @@ def greedy_best_first_search():
 
 start_time = time.time()
 tour, tour_length = greedy_best_first_search()
-added_note += "\n       Tour found in {:.1f} seconds".format(time.time() - start_time)
+# added_note += "\n       Tour found in {:.1f} seconds".format(time.time() - start_time)
 
 ############
 ############ YOUR CODE SHOULD NOW BE COMPLETE AND WHEN EXECUTION OF THIS PROGRAM 'skeleton.py'
